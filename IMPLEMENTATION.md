@@ -21,7 +21,7 @@ This document describes the detailed implementation of the Smart Parking Guidanc
 
 
 #### Required Unity Packages:
-##### Table 4.1: Unity Package Dependencies
+##### Table 1: Unity Package Dependencies
 | Package | Version | Purpose |
 |---|---|---|
 |ML-Agents|3.0.0|Reinforcement learning framework|
@@ -105,7 +105,7 @@ Assets/
     - macOS/Linux: source parking-ml-env/bin/activate
 
 #### Required Python Libraries:
-###### Table 4.2: Python Libraries and Versions
+###### Table 2: Python Libraries and Versions
 |Library|Version|Purpose|
 |---|---|---|
 |mlagents|1.0.0|Unity ML-Agents training|
@@ -231,7 +231,7 @@ class SUMOUnityBridge:
 ```
 ## II. Module Description
 ### 2.1 3D Parking Environment
-###### Figure 4.4: 3D Parking Facility Model
+###### Figure 1: 3D Parking Facility Model
 The parking facility is modeled as a multi-level structure with the following components:
 #### Structural Elements:
 
@@ -326,7 +326,7 @@ public class ParkingEnvironment : MonoBehaviour
 }
 ```
 ### 2.2 Vehicle Detection Module
-###### Figure 4.5: Vehicle Detection Neural Network
+###### Figure 2: Vehicle Detection Neural Network
 The vehicle detection module identifies vehicle presence and characteristics using a convolutional neural network.
 #### Network Architecture:
 The detection network consists of:
@@ -411,7 +411,7 @@ public class VehicleDetector : MonoBehaviour
 }
 ```
 ### 2.3 MARL-GCN Pathfinding Module
-###### Figure 4.6: MARL-GCN Network Structure
+###### Figure 3: MARL-GCN Network Structure
 The Multi-Agent Reinforcement Learning with Graph Convolutional Network is the core intelligence component for optimal parking allocation.
 #### Graph Construction:
 The parking facility is represented as a graph G = (V, E):
@@ -448,7 +448,7 @@ Each agent represents a zone or section of the parking facility:
 - Centralized training, decentralized execution (CTDE) paradigm
 
 #### MARL-GCN Model:
-###### Table 4.3: MARL-GCN Hyperparameters
+###### Table 3: MARL-GCN Hyperparameters
 |Parameter|Value|Description|
 |---|---|---|
 |Learning Rate|0.0003|Adam optimizer rate|
@@ -535,7 +535,7 @@ Training script execution:
 python train_marl_gcn.py --config config/marl_config.yaml --episodes 10000
 ```
 ### 2.4 Simulation Controller
-###### Figure 4.7: Simulation Controller Interface
+###### Figure 4: Simulation Controller Interface
 The simulation controller orchestrates all system components and provides monitoring capabilities.
 #### Core Controller Script:
 ```csharp
