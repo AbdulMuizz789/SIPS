@@ -1,0 +1,7 @@
+mlagents==1.1.0
+torch-geometric
+numpy
+matplotlib 
+tensorboard 
+pandas
+-r torch-requirement.txt
