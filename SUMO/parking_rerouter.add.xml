@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-02-27T19:11:55.889968+05:30 by Eclipse SUMO netedit 1.26.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Rerouter -->
+    <rerouter id="pa_0" pos="20.54,36.47" edges="E4">
+        <interval begin="0.00" end="86400.00">
+            <parkingAreaReroute id="pa_0" visible="1"/>
+            <parkingAreaReroute id="pa_1" visible="1"/>
+            <parkingAreaReroute id="pa_3" visible="1"/>
+        </interval>
+    </rerouter>
+    <rerouter id="pa_1" pos="-0.61,38.96" edges="-E4">
+        <interval begin="0.00" end="86400.00">
+            <parkingAreaReroute id="pa_1" visible="1"/>
+            <parkingAreaReroute id="pa_3" visible="1"/>
+            <parkingAreaReroute id="pa_0" visible="1"/>
+        </interval>
+    </rerouter>
+    <rerouter id="pa_2" pos="-8.34,28.26" edges="E3">
+        <interval begin="0.00" end="86400.00">
+            <parkingAreaReroute id="pa_2" visible="1"/>
+            <parkingAreaReroute id="pa_3" visible="1"/>
+            <parkingAreaReroute id="pa_0" visible="1"/>
+            <parkingAreaReroute id="pa_1" visible="1"/>
+        </interval>
+    </rerouter>
+    <rerouter id="pa_3" pos="-8.49,46.16" edges="E3.24">
+        <interval begin="0.00" end="86400.00">
+            <parkingAreaReroute id="pa_3" visible="1"/>
+            <parkingAreaReroute id="pa_0" visible="1"/>
+            <parkingAreaReroute id="pa_1" visible="1"/>
+        </interval>
+    </rerouter>
+</additional>
