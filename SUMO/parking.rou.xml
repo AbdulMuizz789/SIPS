@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2026-02-27T05:53:29.924560+05:30 by Eclipse SUMO netedit 1.26.0
+<!-- generated on 2026-02-27T19:06:38.529339+05:30 by Eclipse SUMO netedit 1.26.0
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <!-- Routes -->
-    <route id="r_0" edges="E2.28 E3 E4 -E4 -E3 E2"/>
-    <route id="r_1" edges="E2.28 E3 E3.24 -E3.24 -E3 E2"/>
-    <route id="r_2" edges="E2.28 E3 -E3 E2"/>
-    <!-- Vehicles, persons and containers (sorted by depart) -->
-    <flow id="f_0" begin="0.00" end="3600.00" probability="0.30769230769230770939" route="r_0">
-        <stop parkingArea="pa_0" duration="60.00"/>
-    </flow>
-    <flow id="f_1" begin="0.00" end="3600.00" probability="0.30769230769230770939" route="r_0">
-        <stop parkingArea="pa_1" duration="60.00"/>
-    </flow>
-    <flow id="f_2" begin="0.00" end="3600.00" probability="0.23076923076923078204" route="r_2">
+    <route id="r_2" edges="E2.28 E3 -E3 E2">
         <stop parkingArea="pa_2" duration="60.00"/>
-    </flow>
-    <flow id="f_3" begin="0.00" end="3600.00" probability="0.15384615384615385469" route="r_1">
-        <stop parkingArea="pa_3" duration="60.00"/>
-    </flow>
+    </route>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <flow id="f_0" begin="0.00" end="3600.00" perHour="1800.00" route="r_2"/>
 </routes>

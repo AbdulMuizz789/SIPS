@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2026-02-27T03:31:58.409915+05:30 by Eclipse SUMO netedit 1.26.0
+<!-- generated on 2026-02-27T19:11:55.889323+05:30 by Eclipse SUMO netedit 1.26.0
 -->
 
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
     <!-- StoppingPlaces -->
-    <parkingArea id="pa_0" lane="E4_0" startPos="8.58" endPos="18.58" angle="90.00" roadsideCapacity="4" width="2.50"/>
-    <parkingArea id="pa_1" lane="-E4_0" startPos="11.49" endPos="21.49" angle="90.00" roadsideCapacity="4" width="2.50"/>
-    <parkingArea id="pa_2" lane="E3_0" startPos="3.14" endPos="10.64" angle="90.00" roadsideCapacity="3" width="2.50"/>
-    <parkingArea id="pa_3" lane="E3.24_0" startPos="0.15" endPos="5.15" angle="90.00" roadsideCapacity="2" width="2.50"/>
+    <parkingArea id="pa_0" lane="E4_0" startPos="8.09" endPos="18.09" angle="90.00" width="2.50">
+        <space x="1.93" y="45.58" width="2.50" length="5.00" angle="180.00"/>
+        <space x="4.69" y="45.57" width="2.50" length="5.00" angle="180.00"/>
+        <space x="7.51" y="45.63" width="2.50" length="5.00" angle="180.00"/>
+        <space x="10.34" y="45.70" width="2.50" length="5.00" angle="180.00"/>
+    </parkingArea>
+    <parkingArea id="pa_1" lane="-E4_0" startPos="15.02" endPos="25.02" angle="90.00" width="2.50">
+        <space x="4.38" y="29.70" width="2.50" length="5.00" angle="0.00"/>
+        <space x="7.26" y="29.69" width="2.50" length="5.00" angle="0.00"/>
+        <space x="10.22" y="29.81" width="2.50" length="5.00" angle="0.00"/>
+        <space x="1.49" y="29.70" width="2.50" length="5.00" angle="0.00"/>
+    </parkingArea>
+    <parkingArea id="pa_2" lane="E3_0" startPos="3.91" endPos="11.41" angle="90.00" width="2.50">
+        <space x="-17.73" y="21.87" width="2.50" length="5.00" angle="-90.00"/>
+        <space x="-17.79" y="24.55" width="2.50" length="5.00" angle="-90.00"/>
+        <space x="-17.85" y="27.23" width="2.50" length="5.00" angle="-90.00"/>
+    </parkingArea>
+    <parkingArea id="pa_3" lane="E3.24_0" startPos="0.15" endPos="5.15" angle="90.00" width="2.50">
+        <space x="-17.95" y="44.54" width="2.50" length="5.00" angle="-90.00"/>
+        <space x="-17.96" y="41.73" width="2.50" length="5.00" angle="-90.00"/>
+    </parkingArea>
 </additional>
