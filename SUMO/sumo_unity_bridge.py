@@ -14,6 +14,11 @@ class SUMOUnityBridge:
     def connect_unity(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(('localhost', self.unity_port))
+
+    def send_to_unity(self, data):
+        """Send a JSON-serialised message to Unity over the socket."""
+        msg = json.dumps(data)
+        self.socket.sendall(msg.encode('utf-8'))
         
     def step(self):
         traci.simulationStep()
@@ -45,3 +50,20 @@ class SUMOUnityBridge:
                 # You might need logic to determine which specific index within the area
             }
             self.send_to_unity(vehicle_data)
+
+if __name__ == "__main__":
+    import sys
+    config = sys.argv[1] if len(sys.argv) > 1 else "parking_sumo.sumocfg"
+    port = int(sys.argv[2]) if len(sys.argv) > 2 else 9000
+    bridge = SUMOUnityBridge(config, unity_port=port)
+    bridge.start_sumo()
+    bridge.connect_unity()
+    try:
+        while True:
+            bridge.step()
+    except KeyboardInterrupt:
+        print("Simulation stopped by user.")
+    finally:
+        traci.close()
+        if bridge.socket:
+            bridge.socket.close()
