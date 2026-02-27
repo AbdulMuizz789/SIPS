@@ -99,29 +99,11 @@ public class SUMOReceiver : MonoBehaviour
                     if (areaId != null && indexStr != null && int.TryParse(indexStr, out int index))
                     {
                         Debug.Log($"Parking event: area {areaId}, index {index}");
-                        // Call ParkingEnvironment to occupy space
-                        if (parkingEnvironment != null)
-                        {
-                            var space = parkingEnvironment.GetSpaceByID(areaId, index);
-                            if (space != null)
-                            {
-                                // Assuming ParkingSpace has a public field or property 'isOccupied'
-                                var parkingSpace = space.GetComponent<ParkingSpace>();
-                                if (parkingSpace != null)
-                                {
-                                    // Use reflection as a fallback if 'isOccupied' is not exposed
-                                    var field = parkingSpace.GetType().GetField("isOccupied");
-                                    if (field != null)
-                                        field.SetValue(parkingSpace, true);
-                                    else
-                                    {
-                                        var prop = parkingSpace.GetType().GetProperty("isOccupied");
-                                        if (prop != null)
-                                            prop.SetValue(parkingSpace, true, null);
-                                    }
-                                }
-                            }
-                        }
+                        
+                        // Queue the action for the main thread
+                        MainThreadDispatcher.Enqueue(() => {
+                            HandleParkingEvent(areaId, index, true);
+                        });
                     }
                 }
                 else if (json.Contains("\"action\": \"unpark\""))
@@ -131,26 +113,11 @@ public class SUMOReceiver : MonoBehaviour
                     if (areaId != null && indexStr != null && int.TryParse(indexStr, out int index))
                     {
                         Debug.Log($"Unpark event: area {areaId}, index {index}");
-                        if (parkingEnvironment != null)
-                        {
-                            var space = parkingEnvironment.GetSpaceByID(areaId, index);
-                            if (space != null)
-                            {
-                                var parkingSpace = space.GetComponent<ParkingSpace>();
-                                if (parkingSpace != null)
-                                {
-                                    var field = parkingSpace.GetType().GetField("isOccupied");
-                                    if (field != null)
-                                        field.SetValue(parkingSpace, false);
-                                    else
-                                    {
-                                        var prop = parkingSpace.GetType().GetProperty("isOccupied");
-                                        if (prop != null)
-                                            prop.SetValue(parkingSpace, false, null);
-                                    }
-                                }
-                            }
-                        }
+                        
+                        // Queue the action for the main thread
+                        MainThreadDispatcher.Enqueue(() => {
+                            HandleParkingEvent(areaId, index, false);
+                        });
                     }
                 }
             }
@@ -158,6 +125,39 @@ public class SUMOReceiver : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogWarning("Failed to process message: " + e.Message);
+        }
+    }
+    
+    void HandleParkingEvent(string areaId, int index, bool occupy)
+    {
+        if (parkingEnvironment != null)
+        {
+            var space = parkingEnvironment.GetSpaceByID(areaId, index);
+            if (space != null)
+            {
+                var parkingSpace = space.GetComponent<ParkingSpace>();
+                if (parkingSpace != null)
+                {
+                    // Directly set the isOccupied value without reflection
+                    parkingSpace.isOccupied = occupy;
+                    
+                    // You can also add visual feedback
+                    if (occupy)
+                    {
+                        // Visual indication for occupied space
+                        Debug.Log($"Space {areaId}[{index}] is now occupied");
+                    }
+                    else
+                    {
+                        // Visual indication for free space
+                        Debug.Log($"Space {areaId}[{index}] is now free");
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Could not find parking space {areaId}[{index}]");
+            }
         }
     }
     
