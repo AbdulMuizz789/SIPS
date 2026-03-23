@@ -87,7 +87,6 @@ class SUMOUnityBridge:
                 'parking_area_id': parking_area_id,
                 'parking_index': index
             }
-            print(f"Vehicle {veh_id} parked in {parking_area_id} at index {index}")
             self.send_to_unity(vehicle_data)
         
         # Handle vehicles that have ended parking (departed from parking area)
