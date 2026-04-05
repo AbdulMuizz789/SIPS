@@ -4,4 +4,7 @@ numpy
 matplotlib 
 tensorboard 
 pandas
+opencv-python
+pyzmq
+ultralytics
 -r torch-requirement.txt
