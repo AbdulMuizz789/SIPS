@@ -1,27 +1,35 @@
-using UnityEngine;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SUMOReceiver : MonoBehaviour
 {
     public int listenPort = 9000;
     public ParkingEnvironment parkingEnvironment;
-    
+    public GameObject vehiclePrefab;
+
     private Thread receiveThread;
     private TcpListener tcpListener;
     private TcpClient connectedClient;
     private NetworkStream stream;
     private bool running;
-    
+
+    private ConcurrentQueue<string> dataQueue = new();
+    private Dictionary<string, GameObject> activeVehicles = new();
+
     void Start()
     {
         if (parkingEnvironment == null)
         {
-            parkingEnvironment = FindObjectOfType<ParkingEnvironment>();
+            parkingEnvironment = FindAnyObjectByType<ParkingEnvironment>();
         }
         StartListening();
     }
@@ -45,36 +53,18 @@ public class SUMOReceiver : MonoBehaviour
             connectedClient = tcpListener.AcceptTcpClient();
             stream = connectedClient.GetStream();
             
-            byte[] buffer = new byte[4096];
-            StringBuilder messageBuilder = new StringBuilder();
-            
+            byte[] buffer = new byte[8192];
+            var reader = new System.IO.StreamReader(stream, Encoding.UTF8);
+
             while (running)
             {
-                if (stream.DataAvailable)
-                {
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        string chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        messageBuilder.Append(chunk);
+                byte[] readySignal = Encoding.UTF8.GetBytes("Ready\n");
+                stream.Write(readySignal, 0, readySignal.Length);
 
-                        // Process complete JSON messages (one per line)
-                        string data = messageBuilder.ToString();
-                        int newlineIndex;
-                        while ((newlineIndex = data.IndexOf('\n')) >= 0)
-                        {
-                            string line = data.Substring(0, newlineIndex).Trim();
-                            data = data.Substring(newlineIndex + 1);
-                            if (!string.IsNullOrEmpty(line))
-                            {
-                                ProcessMessage(line);
-                            }
-                        }
-                        messageBuilder.Clear();
-                        messageBuilder.Append(data);
-                    }
-                }
-                Thread.Sleep(10);
+                string line = reader.ReadLine();
+                if (line == null) break;
+
+                dataQueue.Enqueue(line);
             }
         }
         catch (Exception e)
@@ -82,49 +72,83 @@ public class SUMOReceiver : MonoBehaviour
             Debug.LogError("SUMOReceiver thread error: " + e.Message);
         }
     }
-    
+
+    void Update()
+    {
+        // Process everything currently in the queue
+        while (dataQueue.TryDequeue(out string jsonResponse))
+        {
+            ProcessMessage(jsonResponse);
+        }
+    }
+
     void ProcessMessage(string json)
     {
         try
         {
-            // Simple JSON parsing (we assume small, simple objects)
-            // You could use a proper library like JsonUtility for more complex messages
-            if (json.Contains("\"action\""))
+            Debug.Log("Received JSON: " + json);
+            var vehicles = JsonConvert.DeserializeObject<Dictionary<string, VehicleUpdate>>(json);
+            if (vehicles == null) return;
+
+            foreach (var kvp in vehicles)
             {
-                // Very basic extraction (for demonstration; replace with JsonUtility if needed)
-                if (json.Contains("\"action\": \"park\""))
+                string id = kvp.Key;
+                VehicleUpdate data = kvp.Value;
+
+                switch (data.action)
                 {
-                    string areaId = ExtractValue(json, "parking_area_id");
-                    string indexStr = ExtractValue(json, "parking_index");
-                    if (areaId != null && indexStr != null && int.TryParse(indexStr, out int index))
-                    {
-                        Debug.Log($"Parking event: area {areaId}, index {index}");
-                        
-                        // Queue the action for the main thread
-                        MainThreadDispatcher.Enqueue(() => {
-                            HandleParkingEvent(areaId, index, true);
-                        });
-                    }
-                }
-                else if (json.Contains("\"action\": \"unpark\""))
-                {
-                    string areaId = ExtractValue(json, "parking_area_id");
-                    string indexStr = ExtractValue(json, "parking_index");
-                    if (areaId != null && indexStr != null && int.TryParse(indexStr, out int index))
-                    {
-                        Debug.Log($"Unpark event: area {areaId}, index {index}");
-                        
-                        // Queue the action for the main thread
-                        MainThreadDispatcher.Enqueue(() => {
-                            HandleParkingEvent(areaId, index, false);
-                        });
-                    }
+                    case "depart":
+                        HandleDepart(id, data);
+                        break;
+
+                    case "update":
+                        UpdateVehicleTransforms(id, data);
+                        break;
+
+                    case "park":
+                        Debug.Log($"Vehicle {id} is parking in area {data.parking_area_id} at index {data.parking_index}");
+                        // Logic: You might want to disable the SUMO-driven renderer and 
+                        // enable your ML-Agent controller here for precision parking.
+                        HandleParkingEvent(data.parking_area_id, data.parking_index, true);
+                        break;
+
+                    case "unpark":
+                        Debug.Log($"Vehicle {id} has finished parking.");
+                        HandleParkingEvent(data.parking_area_id, data.parking_index, false);
+                        break;
                 }
             }
         }
         catch (Exception e)
         {
             Debug.LogWarning("Failed to process message: " + e.Message);
+        }
+    }
+
+    void UpdateVehicleTransforms(string id, VehicleUpdate data)
+    {
+        if (activeVehicles.ContainsKey(id))
+        {
+            // Map SUMO (X, Y) to Unity (X, Z)
+            Vector3 position = new Vector3((float)data.x, 0, (float)data.y);
+            Quaternion rotation = Quaternion.Euler(0, (float)data.angle, 0);
+
+            activeVehicles[id].transform.position = position;
+            activeVehicles[id].transform.rotation = rotation;
+        }
+    }
+
+    void HandleDepart(string id, VehicleUpdate data)
+    {
+        if (!activeVehicles.ContainsKey(id))
+        {
+            // Map SUMO (X, Y) to Unity (X, Z)
+            Vector3 position = new Vector3((float)data.x, 0, (float)data.y);
+            Quaternion rotation = Quaternion.Euler(0, (float)data.angle, 0);
+
+            GameObject v = Instantiate(vehiclePrefab, position, rotation);
+            v.name = id;
+            activeVehicles.Add(id, v);
         }
     }
     
@@ -161,22 +185,6 @@ public class SUMOReceiver : MonoBehaviour
         }
     }
     
-    // Helper to extract simple JSON values (only works for flat keys without nested objects)
-    private string ExtractValue(string json, string key)
-    {
-        string searchKey = "\"" + key + "\":";
-        int start = json.IndexOf(searchKey);
-        if (start < 0) return null;
-        start += searchKey.Length;
-        int end = json.IndexOf(',', start);
-        if (end < 0) end = json.IndexOf('}', start);
-        if (end < 0) return null;
-        string val = json.Substring(start, end - start).Trim();
-        if (val.StartsWith("\"") && val.EndsWith("\""))
-            val = val.Substring(1, val.Length - 2);
-        return val;
-    }
-    
     void OnDestroy()
     {
         running = false;
@@ -189,4 +197,15 @@ public class SUMOReceiver : MonoBehaviour
         if (tcpListener != null)
             tcpListener.Stop();
     }
+}
+
+[Serializable]
+public class VehicleUpdate
+{
+    public string action;
+    public double x;
+    public double y;
+    public double angle;
+    public string parking_area_id;
+    public int parking_index;
 }
